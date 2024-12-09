@@ -1,0 +1,49 @@
+def calculate_furusato_donation_limit(taxable_income):
+    """
+    Parameters:
+        taxable_income (float): 課税所得（雑所得 - 所得控除）
+
+    Returns:
+        float: ふるさと納税の上限金額
+    """
+    # ふるさと納税の住民税控除の上限計算
+    resident_tax_limit = taxable_income * 0.2 - 2000
+    return max(0, resident_tax_limit)
+
+
+def calculate_furusato_and_tax(zassho_income, ideco_monthly):
+    """
+    Parameters:
+        zassho_income (float): 雑所得の年間収入額
+        ideco_monthly (float): iDeCoの月額拠出金額
+
+    Returns:
+        dict: ふるさと納税上限金額と課税情報
+    """
+    # 定数
+    IDECO_MAX_ANNUAL = ideco_monthly * 12  # 年間iDeCo拠出金
+    BASIC_DEDUCTION = 480000  # 基礎控除
+
+    # 課税所得の計算
+    taxable_income = zassho_income - IDECO_MAX_ANNUAL - BASIC_DEDUCTION
+    taxable_income = max(0, taxable_income)  # 課税所得は最低0
+
+    # ふるさと納税の上限金額計算
+    furusato_limit = calculate_furusato_donation_limit(taxable_income)
+
+    # 結果をまとめる
+    return {
+        "課税所得": taxable_income,
+        "ふるさと納税上限金額": furusato_limit
+    }
+
+
+# 条件設定
+zassho_income = 2160000  # 年間雑所得
+ideco_monthly = 20000    # 月額iDeCo拠出金
+
+result = calculate_furusato_and_tax(zassho_income, ideco_monthly)
+
+# 結果表示
+for key, value in result.items():
+    print(f"{key}: {value:,.0f}円")
